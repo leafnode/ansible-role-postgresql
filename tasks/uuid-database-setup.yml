@@ -1,0 +1,28 @@
+---
+- name: Check if UUID extension is installed in a default database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --command=\"select extname from pg_extension where extname='uuid-ossp';\" \"template1\""
+  register: uuid_in_template1
+  changed_when: false
+
+- name: Create UUID extension in a default database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='create extension IF NOT EXISTS \"uuid-ossp\";' \"template1\""
+  when: uuid_in_template1.stdout == ''
+
+- name: Check if UUID extension is installed in databases
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --command=\"select extname from pg_extension where extname='uuid-ossp';\" \"{{ item.name }}\""
+  register: uuid_in_databases
+  with_items: "{{ pg_databases }}"
+  changed_when: false
+
+- name: Create UUID extension in installed database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='create extension IF NOT EXISTS \"uuid-ossp\";' \"{{ item.item.name }}\""
+  when: item.stdout == ''
+  with_items: "{{ uuid_in_databases.results }}"

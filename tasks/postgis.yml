@@ -1,0 +1,15 @@
+---
+- name: Install postgis extension
+  become: yes
+  apt:
+    name: "postgresql-{{ pg_version }}-postgis-{{ pg_postgis_version }}"
+    state: present
+  tags:
+    - postgresql
+
+- name: Install libgeos
+  become: yes
+  apt:
+    name: libgeos-c1
+    state: present
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version | version_compare('16.04', '<')
