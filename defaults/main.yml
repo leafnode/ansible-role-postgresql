@@ -4,7 +4,7 @@ app_servers: []
 game_servers: []
 pg_app_servers: []
 
-pg_version: 9.4
+pg_version: 9.6
 pg_encoding: 'UTF-8'
 pg_locale: 'en_US.UTF-8'
 
