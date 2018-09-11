@@ -28,7 +28,7 @@ pg_cfg_srv_hot_standby: off
 # Extensions setup
 pg_dev_headers: true
 pg_contrib: true
-
+pg_zson: false
 pg_uuid: true
 
 pg_postgis: false
