@@ -1,0 +1,66 @@
+---
+- name: Install required packages
+  apt:
+    package: "{{ item }}"
+    state: present
+  with_items:
+    - build-essential
+    - postgresql-server-dev-9.6
+
+- name: Unarchive
+  unarchive:
+    src: https://github.com/postgrespro/zson/archive/master.zip
+    dest: /tmp/
+    remote_src: yes
+
+- name: Compile
+  shell: "make"
+  args:
+    chdir: "/tmp/zson-master"
+
+- name: Install
+  shell: "make install"
+  args:
+    chdir: "/tmp/zson-master"
+
+- name: cleanup
+  file:
+    path: "/tmp/zson-master"
+    state: absent
+
+- name: Create zson extension in a default database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='CREATE EXTENSION IF NOT EXISTS zson;' \"template1\""
+
+- name: Create zson extension in installed database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='CREATE EXTENSION IF NOT EXISTS zson;' \"{{ item.name }}\""
+  with_items: "{{ pg_databases }}"
+  when: pg_replica == false
+
+- name: Grant dict permissions in a default database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict to {{ pg_users[0].name }};' \"template1\""
+  when: pg_replica == false
+
+- name: Grant dict permissions in installed database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict to {{ pg_users[0].name }};' \"{{ item.name }}\""
+  with_items: "{{ pg_databases }}"
+  when: pg_replica == false
+
+- name: Grant seq permissions in a default database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict_dict_id_seq to {{ pg_users[0].name }};' \"template1\""
+
+- name: Grant seq permissions in installed database
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict_dict_id_seq to {{ pg_users[0].name }};' \"{{ item.name }}\""
+  with_items: "{{ pg_databases }}"
+  when: pg_replica == false

@@ -133,3 +133,12 @@
 - include: uuid-database-setup.yml
   when: pg_uuid and pg_replica == false
   tags: postgres_uuid
+
+- name: Check if zsonlib is installed
+  stat:
+    path: /usr/lib/postgresql/9.6/lib/zson.so
+  register: zson_lib
+
+- include: zson.yml
+  when: pg_zson and zson_lib.stat.exists == false
+  tags: postgres_zson
