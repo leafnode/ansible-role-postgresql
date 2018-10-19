@@ -1,14 +1,27 @@
 ---
 - name: Install development headers
-  apt: pkg="libpq-dev"
+  apt:
+    name: "libpq-dev"
+    state: present
   become: yes
   when: pg_dev_headers == True
   tags:
     - postgresql
 
 - name: Install PostgreSQL contribs
-  apt: pkg="postgresql-contrib-{{ pg_version }}"
+  apt:
+    name: "postgresql-contrib-{{ pg_dist_version }}={{ pg_version }}.*"
+    state: present
   become: yes
-  when: pg_contrib
+  when: pg_contrib and pg_version_exact == false
+  tags:
+    - postgresql
+
+- name: Install PostgreSQL contribs exact version
+  apt:
+    name: "postgresql-contrib-{{ pg_dist_version }}={{ pg_version }}"
+    state: present
+  become: yes
+  when: pg_contrib and pg_version_exact == true
   tags:
     - postgresql

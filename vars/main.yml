@@ -1,1 +1,2 @@
-
+pg_version_exact: '{{ ((pg_version | string).split(".") | length) > 2 }}'
+pg_dist_version: '{{ ((pg_version | string).split(".")[0:2]) | join(".") }}'
