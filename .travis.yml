@@ -31,3 +31,9 @@ script:
     | grep -q 'changed=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && cat /tmp/idempotency-test-log && exit 1)
+
+  # Check if postgresql is up and running
+  - >
+    ps aux | grep -v grep | grep -q postgresql
+    && (echo 'PostgreSQL is running' && exit 0)
+    || (echo 'PostgreSQL is not running' && exit 1)

@@ -240,6 +240,8 @@ wal_sender_timeout = {{ pg_cfg_srv_replication_timeout }}
 replication_timeout = {{ pg_cfg_srv_replication_timeout }}            # in millisecondseconds; 0 disables
 {% endif -%}
 
+max_standby_streaming_delay =  {{ pg_cfg_srv_max_standby_streaming_delay }}
+
 # - Master Server -
 
 # These settings are ignored on a standby server.

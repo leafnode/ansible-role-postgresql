@@ -24,6 +24,7 @@ pg_has_replica: false
 pg_replica_user: replicator
 pg_replica_password: change-me
 pg_cfg_srv_hot_standby: off
+pg_cfg_srv_max_standby_streaming_delay: '30s'
 
 # Extensions setup
 pg_dev_headers: true
