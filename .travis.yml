@@ -24,6 +24,11 @@ script:
   # Run the role/playbook with ansible-playbook.
   - "ansible-playbook -i tests/inventory tests/$SITE --connection=local --become"
 
+  # debug
+  - sudo cat /etc/postgresql/9.6/main/pg_hba.conf
+  - sudo tail /var/log/syslog
+  - sudo tail /var/log/postgresql/postgresql-9.6-main.log
+
   # Run the role/playbook again, checking to make sure it's idempotent.
   - >
     ansible-playbook -i tests/inventory tests/$SITE --connection=local --become
