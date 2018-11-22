@@ -12,20 +12,44 @@
   tags: postgres_debian
 
 - name: Ensure apt cache is up to date
-  apt: update_cache=yes cache_valid_time=3600
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
   become: true
   tags: postgres_debian
 
 - name: Ensure packages are installed
-  apt: pkg={{ item }}
+  apt:
+    name: '{{ item }}={{ pg_version }}.*'
+    state: present
   with_items:
-    - postgresql-{{ pg_version }}
-    - postgresql-client-{{ pg_version }}
-    - python-psycopg2
+    - postgresql-{{ pg_dist_version }}
+    - postgresql-client-{{ pg_dist_version }}
   register: db_setup
   environment: "{{ pg_proxy_env }}"
   become: true
   tags: postgres_packages
+  when: pg_version_exact == false
+
+- name: Ensure exact versions of packages are installed
+  apt:
+    name: '{{ item }}={{ pg_version }}-*'
+    state: present
+  with_items:
+  - postgresql-{{ pg_dist_version }}
+  - postgresql-client-{{ pg_dist_version }}
+  register: db_setup
+  environment: "{{ pg_proxy_env }}"
+  become: true
+  tags: postgres_packages
+  when: pg_version_exact == true
+
+- name: Install psycopg
+  apt:
+    name: python-psycopg2
+    state: present
+  tags: postgres_packages
+  environment: "{{ pg_proxy_env }}"
 
 - name: Recreate cluster
   include: recreate_cluster.yml
@@ -35,7 +59,7 @@
 - name: Update pg_hba.conf file
   template:
     src: pg_hba.conf.j2
-    dest: "/etc/postgresql/{{ pg_version }}/{{ pg_cluster }}/pg_hba.conf"
+    dest: "/etc/postgresql/{{ pg_dist_version }}/{{ pg_cluster }}/pg_hba.conf"
     owner: "{{ pg_admin_user }}"
     group: "{{ pg_admin_user }}"
     mode: 0640
@@ -47,7 +71,7 @@
 - name: Update postgres.conf file
   template:
     src: master.conf.j2
-    dest: "/etc/postgresql/{{ pg_version }}/{{ pg_cluster }}/postgresql.conf"
+    dest: "/etc/postgresql/{{ pg_dist_version }}/{{ pg_cluster }}/postgresql.conf"
     owner: "{{ pg_admin_user }}"
     group: "{{ pg_admin_user }}"
     mode: 0644
@@ -86,8 +110,8 @@
     name: postgresql
     state: started
     enabled: yes
-    arguments: "{{ pg_version }}"
-    pattern: "/usr/lib/postgresql/{{ pg_version | float }}/bin/postgres -D /var/lib/postgresql/{{ pg_version }}/{{ pg_cluster }}"
+    arguments: "{{ pg_dist_version }}"
+    pattern: "/usr/lib/postgresql/{{ pg_dist_version }}/bin/postgres -D /var/lib/postgresql/{{ pg_dist_version }}/{{ pg_cluster }}"
   become: true
   tags: postgres_start
 

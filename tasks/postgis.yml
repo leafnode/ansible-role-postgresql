@@ -2,7 +2,7 @@
 - name: Install postgis extension
   become: yes
   apt:
-    name: "postgresql-{{ pg_version }}-postgis-{{ pg_postgis_version }}"
+    name: "postgresql-{{ pg_dist_version }}-postgis-{{ pg_postgis_version }}"
     state: present
   tags:
     - postgresql

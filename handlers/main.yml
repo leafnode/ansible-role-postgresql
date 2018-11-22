@@ -4,5 +4,5 @@
   service:
     name: postgresql
     state: restarted
-    arguments: "{{ pg_version }}"
+    arguments: "{{ pg_dist_version }}"
   become: true
