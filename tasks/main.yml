@@ -126,6 +126,12 @@
   include: ro-user.yml
   when: pg_ro_user is defined and pg_replica == false
 
+- include_tasks: multi-ro-user.yml
+  with_items: "{{ pg_read_only_access }}"
+  loop_control:
+    loop_var: access
+  when: pg_read_only_access is defined and pg_replica == false
+
 - include: postgis-database-setup.yml
   when: pg_postgis and pg_replica == false
   tags: postgres_postgis

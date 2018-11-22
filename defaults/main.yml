@@ -26,6 +26,23 @@ pg_replica_password: change-me
 pg_cfg_srv_hot_standby: off
 pg_cfg_srv_max_standby_streaming_delay: '30s'
 
+# read only
+
+#pg_read_only_access:
+#  - netmask: "192.168.1.15/32"
+#    user: "user1"
+#    password: "somePassword"
+#    database: "database1"
+#  - netmask: "192.168.0.1/24"
+#    user: "user2"
+#    password: "otherPassword"
+#    database: "database2"
+
+# DEPRECATION WARNING: support for variables below will be removed in future releases
+#pg_ro_user: username
+#pg_ro_password: password
+#pg_ro_database: databasename
+
 # Extensions setup
 pg_dev_headers: true
 pg_contrib: true
