@@ -1,0 +1,30 @@
+---
+- name: Create read-only user
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ access.user }}"
+    password: "{{ access.password }}"
+
+- name: revoke create table permissions from public
+  become: yes
+  become_user: postgres
+  shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='REVOKE ALL ON SCHEMA public FROM public; GRANT USAGE ON SCHEMA public TO public; GRANT ALL ON SCHEMA public TO \"{{ access.rw_user }}\";' \"{{ access.database }}\""
+
+- name: prepare SQL
+  template:
+    src: create-multi-ro-user.sql.j2
+    dest: /tmp/create-ro-user.sql
+    owner: "{{ pg_admin_user }}"
+    group: "{{ pg_admin_user }}"
+    mode: 0600
+
+- name: execute SQL
+  shell: "psql -U \"{{ access.rw_user }}\" --no-psqlrc --no-align --tuples-only --quiet --echo-queries --file=\"/tmp/create-ro-user.sql\" \"{{ access.database }}\""
+  environment:
+    PGPASSWORD: "{{ access.rw_password }}"
+
+- name: cleanup
+  file:
+    path: /tmp/create-ro-user.sql
+    state: absent

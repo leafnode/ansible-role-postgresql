@@ -50,3 +50,10 @@ hostssl replication {{ pg_replica_user }} {{ host }}/32 md5
 host replication {{ pg_replica_user }} {{ host }}/32 md5
 {% endfor %}
 {% endif %}
+
+# Read only access
+{% if pg_read_only_access is defined %}
+{% for access in pg_read_only_access %}
+host  {{ access.database }}  {{ access.user }}  {{ access.netmask }} password
+{% endfor %}
+{% endif %}
