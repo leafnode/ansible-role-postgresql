@@ -37,3 +37,5 @@ script:
     ps aux | grep -v grep | grep -q postgresql
     && (echo 'PostgreSQL is running' && exit 0)
     || (echo 'PostgreSQL is not running' && exit 1)
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
