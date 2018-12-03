@@ -1,14 +1,14 @@
 ---
 - name: Install development headers
   apt: pkg="libpq-dev"
-  become: yes
+  become: true
   when: pg_dev_headers == True
   tags:
     - postgresql
 
 - name: Install PostgreSQL contribs
   apt: pkg="postgresql-contrib-{{ pg_version }}"
-  become: yes
+  become: true
   when: pg_contrib
   tags:
     - postgresql

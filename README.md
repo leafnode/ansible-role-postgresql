@@ -577,3 +577,7 @@ pg_proxy_env:
   LC_LCTYPE: "{{ pg_locale }}"
 
 ```
+
+# Development
+
+Please check [development guide](DEVELOPMENT.md) for details about developing and testing this role.

@@ -1,0 +1,16 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Install locales package
+      apt:
+        name: locales
+        state: present
+    - name: Enable UTF8
+      lineinfile:
+        dest: /etc/locale.gen
+        regexp: '^#\s+en_US.UTF-8 UTF-8'
+        line: 'en_US.UTF-8 UTF-8'
+    - name: Regenerate localedb
+      command: localedef -i en_US -f UTF-8 en_US.UTF-8

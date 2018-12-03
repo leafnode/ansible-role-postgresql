@@ -1,19 +1,19 @@
 ---
 - name: Check if PostGIS extension is installed in a default database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --command=\"select extname from pg_extension where extname='postgis';\" \"template1\""
   register: postgis_in_template1
   changed_when: false
 
 - name: Create PostGIS extension in a default database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='CREATE EXTENSION IF NOT EXISTS postgis;' \"template1\""
   when: postgis_in_template1.stdout == ''
 
 - name: Check if PostGIS extension is installed in databases
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --command=\"select extname from pg_extension where extname='postgis';\" \"{{ item.name }}\""
   register: postgis_in_databases
@@ -21,7 +21,7 @@
   changed_when: false
 
 - name: Create PostGIS extension in installed database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='create extension IF NOT EXISTS \"postgis\";' \"{{ item.item.name }}\""
   when: item.stdout == ''

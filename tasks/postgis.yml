@@ -1,6 +1,6 @@
 ---
 - name: Install postgis extension
-  become: yes
+  become: true
   apt:
     name: "postgresql-{{ pg_version }}-postgis-{{ pg_postgis_version }}"
     state: present
@@ -8,7 +8,7 @@
     - postgresql
 
 - name: Install libgeos
-  become: yes
+  become: true
   apt:
     name: libgeos-c1
     state: present

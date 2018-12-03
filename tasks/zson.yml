@@ -11,7 +11,7 @@
   unarchive:
     src: https://github.com/postgrespro/zson/archive/master.zip
     dest: /tmp/
-    remote_src: yes
+    remote_src: true
 
 - name: Compile
   shell: "make"
@@ -29,37 +29,37 @@
     state: absent
 
 - name: Create zson extension in a default database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='CREATE EXTENSION IF NOT EXISTS zson;' \"template1\""
 
 - name: Create zson extension in installed database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='CREATE EXTENSION IF NOT EXISTS zson;' \"{{ item.name }}\""
   with_items: "{{ pg_databases }}"
   when: pg_replica == false
 
 - name: Grant dict permissions in a default database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict to {{ pg_users[0].name }};' \"template1\""
   when: pg_replica == false
 
 - name: Grant dict permissions in installed database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict to {{ pg_users[0].name }};' \"{{ item.name }}\""
   with_items: "{{ pg_databases }}"
   when: pg_replica == false
 
 - name: Grant seq permissions in a default database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict_dict_id_seq to {{ pg_users[0].name }};' \"template1\""
 
 - name: Grant seq permissions in installed database
-  become: yes
+  become: true
   become_user: postgres
   shell: "psql --no-psqlrc --no-align --tuples-only --quiet --echo-queries --command='grant all on zson_dict_dict_id_seq to {{ pg_users[0].name }};' \"{{ item.name }}\""
   with_items: "{{ pg_databases }}"

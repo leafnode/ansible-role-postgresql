@@ -85,7 +85,7 @@
   service:
     name: postgresql
     state: started
-    enabled: yes
+    enabled: true
     arguments: "{{ pg_version }}"
     pattern: "/usr/lib/postgresql/{{ pg_version | float }}/bin/postgres -D /var/lib/postgresql/{{ pg_version }}/{{ pg_cluster }}"
   become: true
