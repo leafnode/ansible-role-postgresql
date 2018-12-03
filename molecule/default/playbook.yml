@@ -2,5 +2,12 @@
 - name: Converge
   hosts: all
   become: true
+  vars:
+    pg_version: 9.6
+    pg_postgis: true
+    pg_postgis_version: 2.3
+    pg_cfg_srv_fsync: 'off'
+    pg_cfg_srv_shared_buffers: 128MB
+    pg_cfg_srv_work_mem: 64MB
   roles:
     - role: ansible-role-postgresql
