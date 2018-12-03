@@ -99,26 +99,26 @@
   become: true
   become_user: postgres
   postgresql_user:
-      name: "{{ item.name }}"
-      password: "{{ item.password }}"
-      role_attr_flags: "{{ item.permissions }}"
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    role_attr_flags: "{{ item.permissions }}"
   with_items: "{{ pg_users }}"
 
 - name: create replication user
   become: true
   become_user: postgres
   postgresql_user:
-      name: "{{ pg_replica_user }}"
-      password: "{{ pg_replica_password }}"
-      role_attr_flags: "LOGIN,REPLICATION"
+    name: "{{ pg_replica_user }}"
+    password: "{{ pg_replica_password }}"
+    role_attr_flags: "LOGIN,REPLICATION"
   when: pg_has_replica == true
 
 - name: create databases
   become: true
   become_user: postgres
   postgresql_db:
-      name: "{{ item.name }}"
-      owner: "{{ item.owner }}"
+    name: "{{ item.name }}"
+    owner: "{{ item.owner }}"
   with_items: "{{ pg_databases }}"
   when: pg_replica == false
 

@@ -4,7 +4,7 @@
   # cluster and recreate it with proper utf8 support.
   become: true
   become_user: postgres
-  shell: pg_dropcluster --stop {{ pg_version }} {{ pg_cluster }}
+  command: pg_dropcluster --stop {{ pg_version }} {{ pg_cluster }}
   tags:
     - postgres
 
@@ -13,6 +13,6 @@
   # cluster and recreate it with proper utf8 support. From http://ph.ly/pg
   become: true
   become_user: postgres
-  shell: pg_createcluster --start -e {{ pg_encoding }} {{ pg_version }} {{ pg_cluster }}
+  command: pg_createcluster --start -e {{ pg_encoding }} {{ pg_version }} {{ pg_cluster }}
   tags:
     - postgres
