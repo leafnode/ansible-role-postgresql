@@ -1,6 +1,6 @@
 # postgresql
 
-[![Build Status](https://travis-ci.com/iroquoisorg/ansible-role-postgresql.svg?branch=master)](https://travis-ci.com/iroquoisorg/ansible-role-memcached)
+[![Build Status](https://travis-ci.com/iroquoisorg/ansible-role-postgresql.svg?branch=master)](https://travis-ci.com/iroquoisorg/ansible-role-postgresql)
 
 Ansible role for postgresql
 
@@ -13,7 +13,7 @@ This role was prepared and tested for Ubuntu 16.04.
 # Default settings
 
 ```
-
+---
 # default vars file for pg
 app_servers: []
 game_servers: []
@@ -30,33 +30,33 @@ pg_cluster: 'main'
 pg_cluster_recreate: false
 
 # Databases
-pg_users: [] # {name: "username", password: "123456", permissions: "CREATEDB"}
-pg_databases: [] # {name: "dbname", owner: "username"}
+pg_users: []  # {name: "username", password: "123456", permissions: "CREATEDB"}
+pg_databases: []  # {name: "dbname", owner: "username"}
 
 # replication
 pg_replica: false
 pg_has_replica: false
 pg_replica_user: replicator
 pg_replica_password: change-me
-pg_cfg_srv_hot_standby: off
+pg_cfg_srv_hot_standby: 'off'
 pg_cfg_srv_max_standby_streaming_delay: '30s'
 
 # read only
 
-#pg_read_only_access:
-#  - netmask: "192.168.1.15/32"
-#    user: "user1"
-#    password: "somePassword"
-#    database: "database1"
-#  - netmask: "192.168.0.1/24"
-#    user: "user2"
-#    password: "otherPassword"
-#    database: "database2"
+# pg_read_only_access:
+#   - netmask: "192.168.1.15/32"
+#     user: "user1"
+#     password: "somePassword"
+#     database: "database1"
+#   - netmask: "192.168.0.1/24"
+#     user: "user2"
+#     password: "otherPassword"
+#     database: "database2"
 
 # DEPRECATION WARNING: support for variables below will be removed in future releases
-#pg_ro_user: username
-#pg_ro_password: password
-#pg_ro_database: databasename
+# pg_ro_user: username
+# pg_ro_password: password
+# pg_ro_database: databasename
 
 # Extensions setup
 pg_dev_headers: true
@@ -67,14 +67,14 @@ pg_uuid: true
 pg_postgis: false
 pg_postgis_version: '2.1'
 
-pg_repo: 'postgresql.org' # unset to use distribution repo
+pg_repo: 'postgresql.org'  # unset to use distribution repo
 
 # pg_hba.conf
 pg_cfg_pg_hba_default:
   - { type: local, database: all, user: '{{ pg_admin_user }}', address: '', method: 'ident', comment: '' }
-  - { type: local, database: all, user: all, address: '',             method: '{{ pg_default_auth_method }}', comment: '"local" is for Unix domain socket connections only' }
-  - { type: host,  database: all, user: all, address: '127.0.0.1/32', method: '{{ pg_default_auth_method }}', comment: 'IPv4 local connections:' }
-  - { type: host,  database: all, user: all, address: '::1/128',      method: '{{ pg_default_auth_method }}', comment: 'IPv6 local connections:' }
+  - { type: local, database: all, user: all, address: '', method: '{{ pg_default_auth_method }}', comment: '"local" is for Unix domain socket connections only' }
+  - { type: host, database: all, user: all, address: '127.0.0.1/32', method: '{{ pg_default_auth_method }}', comment: 'IPv4 local connections:' }
+  - { type: host, database: all, user: all, address: '::1/128', method: '{{ pg_default_auth_method }}', comment: 'IPv6 local connections:' }
 
 # postgresql.conf settings
 pg_cfg_pg_hba_passwd_hosts: []
@@ -95,17 +95,17 @@ pg_cfg_srv_unix_socket_group: ''
 pg_cfg_srv_unix_socket_permissions: '0777'
 
 pg_cfg_srv_bonjour: 'off'     # advertise secondserver via Bonjour
-pg_cfg_srv_bonjour_name: '' # defaults to the computer name
+pg_cfg_srv_bonjour_name: ''   # defaults to the computer name
 
 
-# ----------------------------
+# -------------------------------
 # - Security and Authentication -
-# ----------------------------
+# -------------------------------
 
 pg_cfg_srv_authentication_timeout: '1min'          # 1s-600s
 
 pg_cfg_srv_ssl: 'off'                              # (change requires restart)
-pg_cfg_srv_ssl_ciphers: 'ALL:!ADH:!LOCATIONSOW:!EXP:!MD5:@STRENGTH' # allowed SSL ciphers
+pg_cfg_srv_ssl_ciphers: 'ALL:!ADH:!LOCATIONSOW:!EXP:!MD5:@STRENGTH'  # allowed SSL ciphers
 
 pg_cfg_srv_ssl_renegotiation_limit: '512MB'        # amount of data between renegotiations
 pg_cfg_srv_ssl_cert_file: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
@@ -116,59 +116,57 @@ pg_cfg_srv_ssl_crl_file: ''
 pg_cfg_srv_password_encryption: 'on'
 pg_cfg_srv_db_user_namespace: 'off'
 
-# ----------------------------
+# -------------------------------
 # - TCP Keepalives              -
 # - see "man 7 tcp" for details -
-# ----------------------------
+# -------------------------------
 
 pg_cfg_srv_tcp_keepalives_idle: '0'       # TCP_KEEPIDLE, in seconds; 0 selects the system default
 pg_cfg_srv_tcp_keepalives_interval: '0'   # TCP_KEEPINTVL, in seconds; 0 selects the system default
 pg_cfg_srv_tcp_keepalives_count: '0'      # TCP_KEEPCNT;  0 selects the system default
 
 
-#---------------------------------------------------------------------------
-# RESOURCE USAGE (except WAL)
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+#  RESOURCE USAGE (except WAL)
+# ------------------------------------------------------------------------------
 
 # - Memory -
 
 
 pg_cfg_srv_shared_buffers: '128kB'
-pg_cfg_srv_temp_buffers: '8MB'                     # min 800kB
-pg_cfg_srv_max_prepared_transactions: '0'          # zero disables the feature
-                                        # (change requires restarttart)
-                                        # Note: ' Increasing max_prepared_transactions costs ~600 bytes of shared memory
-                                        # per transaction slot, plus lock space (see max_locks_per_transaction).
-                                        # It is not advisable to set max_prepared_transactions nonzero unless you
-                                        # actively intend to use prepared transactions.
+pg_cfg_srv_temp_buffers: '8MB'                # min 800kB
+pg_cfg_srv_max_prepared_transactions: '0'     # zero disables the feature (change requires restarttart)
+
+# Note: ' Increasing max_prepared_transactions costs ~600 bytes of shared memory
+# per transaction slot, plus lock space (see max_locks_per_transaction).
+# It is not advisable to set max_prepared_transactions nonzero unless you
+# actively intend to use prepared transactions.
 
 pg_cfg_srv_work_mem: '8MB'
-pg_cfg_srv_maintenance_work_mem: '16MB' # min 1MB
-pg_cfg_srv_max_stack_depth: '2MB'                  # min 100kB
+pg_cfg_srv_maintenance_work_mem: '16MB'       # min 1MB
+pg_cfg_srv_max_stack_depth: '2MB'             # min 100kB
 
 # - Disk -
 
-pg_cfg_srv_temp_file_limit: '-1'                   # limits per-session temp file       space
-                                        # in kB, or -1 for no limit
+pg_cfg_srv_temp_file_limit: '-1'              # limits per-session temp file space in kB, or -1 for no limit
 
 # - Kernel Resource Usage -
 
-pg_cfg_srv_max_files_per_process: '1000' # min 25
-                                        # (change requires restart)
-pg_cfg_srv_shared_preload_libraries: ''          # (change requires restart)
+pg_cfg_srv_max_files_per_process: '1000'      # min 25 (change requires restart)
+pg_cfg_srv_shared_preload_libraries: ''       # (change requires restart)
 
 # - Cost-Based Vacuum Delay -
 
-pg_cfg_srv_vacuum_cost_delay: '0ms'                # 0-100 milliseconds
-pg_cfg_srv_vacuum_cost_page_hit: '1'           # 0-10000 credits
-pg_cfg_srv_vacuum_cost_page_miss: '10'          # 0-10000 credits
-pg_cfg_srv_vacuum_cost_page_dirty: '20'            # 0-10000 credits
-pg_cfg_srv_vacuum_cost_limit: '200' # 1-10000 credits
+pg_cfg_srv_vacuum_cost_delay: '0ms'           # 0-100 milliseconds
+pg_cfg_srv_vacuum_cost_page_hit: '1'          # 0-10000 credits
+pg_cfg_srv_vacuum_cost_page_miss: '10'        # 0-10000 credits
+pg_cfg_srv_vacuum_cost_page_dirty: '20'       # 0-10000 credits
+pg_cfg_srv_vacuum_cost_limit: '200'           # 1-10000 credits
 
 # - Background Writer -
 
-pg_cfg_srv_bgwriter_delay: '200ms'                 # 10-10000ms between rounds
-pg_cfg_srv_bgwriter_lru_maxpages     : '100'       # 0-1000 max buffers written/round
+pg_cfg_srv_bgwriter_delay: '200ms'            # 10-10000ms between rounds
+pg_cfg_srv_bgwriter_lru_maxpages: '100'       # 0-1000 max buffers written/round
 pg_cfg_srv_bgwriter_lru_multiplier: '2.0'     # 0-10.0 multipler on buffers scanned/round
 
 # - Asynchronous Behavior -
@@ -176,79 +174,81 @@ pg_cfg_srv_bgwriter_lru_multiplier: '2.0'     # 0-10.0 multipler on buffers scan
 pg_cfg_srv_effective_io_concurrency: '1'           # 1-1000; 0 disables prefetching
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # WRITE AHEAD LOG
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Settings -
 
-pg_cfg_srv_wal_level: 'minimal'                    # minimalmal, archive, or hot_standby
-                                        # (change requires restart)
-pg_cfg_srv_fsync: 'on'                    # turns forced synchronization on or off
-pg_cfg_srv_synchronous_commit: 'on'                # synchronization level;
-                                        # off, local, remote_write, or on
-pg_cfg_srv_wal_sync_method: 'fsync'           # the default is the first option
-                                        # supported by the operating system:
-                                        #   open_datasync
-                                        #   fdatasync (Delayfault on Linux)
-                                        #   fsync
-                                        #   fsync_writethrough
-                                        #   open_sync
-pg_cfg_srv_full_page_writes: 'on'                  # recover from partial page writes
-pg_cfg_srv_WAL_buffers: '-1'                       # min 32kB, -1 sets based on shared_buffers
-                                        # (changenge requires restart)
-pg_cfg_srv_wal_writer_delay: '200ms'               # 1-10000 milliseconds
+pg_cfg_srv_wal_level: 'minimal'         # minimalmal, archive, or hot_standby (change requires restart)
+pg_cfg_srv_fsync: 'on'                  # turns forced synchronization on or off
+pg_cfg_srv_synchronous_commit: 'on'     # synchronization level; off, local, remote_write, or on
 
-pg_cfg_srv_commit_delay: '0'                       # range 0-100000, in microseconds
-pg_cfg_srv_commit_siblings: '5'                    # range 1-1000
+# the default is the first option supported by the operating system:
+#   open_datasync
+#   fdatasync (Delayfault on Linux)
+#   fsync
+#   fsync_writethrough
+#   open_sync
+pg_cfg_srv_wal_sync_method: 'fsync'
+
+pg_cfg_srv_full_page_writes: 'on'             # recover from partial page writes
+pg_cfg_srv_WAL_buffers: '-1'                  # min 32kB, -1 sets based on shared_buffers (changenge requires restart)
+pg_cfg_srv_wal_writer_delay: '200ms'          # 1-10000 milliseconds
+
+pg_cfg_srv_commit_delay: '0'                  # range 0-100000, in microseconds
+pg_cfg_srv_commit_siblings: '5'               # range 1-1000
 
 # - Checkpoints -
 
-pg_cfg_srv_checkpoint_segments: '3'                # in logfile segments, min 1, 16MB each
-pg_cfg_srv_checkpoint_timeout: '5min'              # range 30s-1h
-pg_cfg_srv_checkpoint_completion_target: '0.5'     # checkpoint target duration, 0.0 - 1.0
-pg_cfg_srv_checkpoint_warning: '30s'               # 0 disables
+pg_cfg_srv_checkpoint_segments: '3'             # in logfile segments, min 1, 16MB each
+pg_cfg_srv_checkpoint_timeout: '5min'           # range 30s-1h
+pg_cfg_srv_checkpoint_completion_target: '0.5'  # checkpoint target duration, 0.0 - 1.0
+pg_cfg_srv_checkpoint_warning: '30s'            # 0 disables
 
 # - Archiving -disables
 
-pg_cfg_srv_archive_mode: 'off'                     # allows archiving to be done
-                                        # (change requireresires restart)
-pg_cfg_srv_archive_command: ''                   # command to use to archive a logfile segment
-                                        # placeholders: '%p: 'path of file to archive
-                                        #               %f: 'file name only
-                                        # e.g. 'test ! -f /mnt/server/archivedir/%f && cp %p /mnt/server/archivedir/%f'
-pg_cfg_srv_archive_timeout: '0'                    # force a logfile segment switch after this
-                                        # number of seconds; 0 disables
+pg_cfg_srv_archive_mode: 'off'          # allows archiving to be done (change requires restart)
 
+# pg_cfg_srv_archive_command: command to use to archive a logfile segment
+# placeholders: '%p: 'path of file to archive
+#               %f: 'file name only
+# e.g. 'test ! -f /mnt/server/archivedir/%f && cp %p /mnt/server/archivedir/%f'
+pg_cfg_srv_archive_command: ''
 
-#---------------------------------------------------------------------------
+# pg_cfg_srv_archive_timeout: force a logfile segment switch after this
+# number of seconds; 0 disables
+pg_cfg_srv_archive_timeout: '0'
+
+# ------------------------------------------------------------------------------
 # REPLICATION
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Sending Server(s) -
 
 # Set these on the master and on any standby that will send replication data.
 
-pg_cfg_srv_max_wal_senders: '0'                  # max number of walsender processes
-                                      # (change requires restart)
+pg_cfg_srv_max_wal_senders: '0'                  # max number of walsender processes (change requires restart)
 pg_cfg_srv_wal_keep_segments: '0'                # in logfile segments, 16MB each; 0 disables
 pg_cfg_srv_replication_timeout: '60s'            # in millisecondseconds; 0 disables
-pg_cfg_srv_replication_receiver_timeout: '60s'            # in millisecondseconds; 0 disables
+pg_cfg_srv_replication_receiver_timeout: '60s'   # in millisecondseconds; 0 disables
 
 # - Master Server -
 
 # These settings are ignored on a standby server.
 
-pg_cfg_srv_synchronous_standby_names: ''       # standby servers that processesvide sync rep
-                                      # comma-separated list of application_name
-                                      # From standby(s); '*': 'all
+# pg_cfg_srv_synchronous_standby_names: standby servers that processesvide sync rep
+# comma-separated list of application_name
+# From standby(s); '*': 'all
+pg_cfg_srv_synchronous_standby_names: ''
+
 pg_cfg_srv_vacuum_defer_cleanup_age: '0'         # number of xacts  by which cleanup is delayed
 
 # - Standby Servers -
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # QUERY TUNING
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Planner Method Configuration -
 
@@ -290,47 +290,60 @@ pg_cfg_srv_default_statistics_target: '100'      # range 1-10000
 pg_cfg_srv_constraint_exclusion: 'partition'     # on, off, or partition
 pg_cfg_srv_cursor_tuple_fraction: '0.1'          # range 0.0-1.0
 pg_cfg_srv_from_collapse_limit: '8'
-pg_cfg_srv_join_collapse_limit: '8'              # 1 disables collapsing of explicit
-                                                # JOIN clauses
+pg_cfg_srv_join_collapse_limit: '8'              # 1 disables collapsing of explicit JOIN clauses
 
-
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ERROR REPORTING AND LOGGING
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Where to Log -
 
-pg_cfg_srv_log_destination: 'stderr'           # Valid values are combinations of
-                                      # stderr, csvlog, syslog, and eventlog,
-                                      # depending on platform.  csvlog
-                                      # requires logging_collector to be on.
+# pg_cfg_srv_log_destination: Valid values are combinations of
+# stderr, csvlog, syslog, and eventlog,
+# depending on platform.  csvlog
+# requires logging_collector to be on.
+pg_cfg_srv_log_destination: 'stderr'
 
 # This is used when logging to stderr:
-pg_cfg_srv_logging_collector: 'off'              # Enable capturing of stderr and csvlog
-                                      # into log files. Required to be Optionsn for
-                                      # csvlogs.
-                                      # (change requires restart)
+
+# pg_cfg_srv_logging_collector: Enable capturing of stderr and csvlog
+# into log files. Required to be Optionsn for
+# csvlogs.
+# (change requires restart)
+pg_cfg_srv_logging_collector: 'off'
 
 # These are only used if logging_collector is on:
-pg_cfg_srv_log_directory: 'pg_log'             # directory where log files are written,
-                                      # can be absolute or relative to PressGDATA
-pg_cfg_srv_log_filename: 'postgresql-%Y-%m-%d_%H%M%S.log' # log file name   pattern,
-                                      # can include strftime() escapes
-pg_cfg_srv_log_file_mode: '0600'                 # creation mode for log files,
-                                      # begin with 0 to use octal notationn
-pg_cfg_srv_log_truncate_on_rotation: 'off'       # If on, an existing log file with Thesehe
-                                      # same name as the new log file will be
-                                      # truncated rather than appended to.
-                                      # But such truncation only occurs on
-                                      # Timee-driven rotation, not on restarts
-                                      # or size-driven rotation.  Defaultault is
-                                      # off, meaning append to existing files
-                                      # in all cases.
-pg_cfg_srv_log_rotation_age: '1d'                # Automatic rotation of logfiles will
-                                      # happen after that time.  0 disables.
-pg_cfg_srv_log_rotation_size: '10MB'             # Authenticationomatic rotation of logfiles will
-                                      # happen after that much log output.
-                                      # 0 disables.
+
+# directory where log files are written,
+# can be absolute or relative to PressGDATA
+pg_cfg_srv_log_directory: 'pg_log'
+
+# log file name   pattern,
+# can include strftime() escapes
+pg_cfg_srv_log_filename: 'postgresql-%Y-%m-%d_%H%M%S.log'
+
+# creation mode for log files,
+# begin with 0 to use octal notationn
+pg_cfg_srv_log_file_mode: '0600'
+
+# If on, an existing log file with Thesehe
+# same name as the new log file will be
+# truncated rather than appended to.
+# But such truncation only occurs on
+# Timee-driven rotation, not on restarts
+# or size-driven rotation.  Defaultault is
+# off, meaning append to existing files
+# in all cases.
+pg_cfg_srv_log_truncate_on_rotation: 'off'
+
+# Automatic rotation of logfiles will
+# happen after that time.  0 disables.
+pg_cfg_srv_log_rotation_age: '1d'
+
+# Authenticationomatic rotation of logfiles will
+# happen after that much log output.
+# 0 disables.
+pg_cfg_srv_log_rotation_size: '10MB'
 
 # These are relevant when logging to syslog:
 pg_cfg_srv_syslog_facility: 'LOCAL0'
@@ -341,50 +354,53 @@ pg_cfg_srv_event_source: 'PostgreSQL'
 
 # - When to Log -
 
-pg_cfg_srv_client_min_messages: 'notice'         # values in order of decreasing detail:
-                                      #   debug5
-                                      #   debug4
-                                      #   debug3
-                                      #   debug2
-                                      #   debug1
-                                      #   log
-                                      #   notice
-                                      #   warning
-                                      #   error
+# values in order of decreasing detail:
+#   debug5
+#   debug4
+#   debug3
+#   debug2
+#   debug1
+#   log
+#   notice
+#   warning
+#   error
+pg_cfg_srv_client_min_messages: 'notice'
 
-pg_cfg_srv_log_min_messages: 'warning'           # values in order of decreasing detail:
-                                      #   debug5
-                                      #   debug4
-                                      #   debug3
-                                      #   debug2
-                                      #   debug1
-                                      #   info
-                                      #   notice
-                                      #   warning
-                                      #   error
-                                      #   log
-                                      #   fatal
-                                      #   panic
+# values in order of decreasing detail:
+#   debug5
+#   debug4
+#   debug3
+#   debug2
+#   debug1
+#   info
+#   notice
+#   warning
+#   error
+#   log
+#   fatal
+#   panic
+pg_cfg_srv_log_min_messages: 'warning'
 
-pg_cfg_srv_log_min_error_statement: 'error'      # values in order of decreasing detail:
-                                      #   debug5
-                                      #   debug4
-                                      #   debug3
-                                      #   debug4g2
-                                      #   debug1
-                                      #   info
-                                      #   notice
-                                      #   warning
-                                      #   error
-                                      #   log
-                                      #   fatal
-                                      #   panic (effectively off)decreasing
+# values in order of decreasing detail:
+#   debug5
+#   debug4
+#   debug3
+#   debug4g2
+#   debug1
+#   info
+#   notice
+#   warning
+#   error
+#   log
+#   fatal
+#   panic (effectively off)decreasing
+pg_cfg_srv_log_min_error_statement: 'error'
 
-pg_cfg_srv_log_min_duration_statement: '-1'      # -1 is disabled, 0 logs all statements
-                                      # and their durations, > 0 logs only
-                                      # statements running at least this number
-                                      # of milliseconds
-
+# -1 is disabled, 0 logs all statements
+# and their durations, > 0 logs only
+# statements running at least this number
+# of milliseconds
+pg_cfg_srv_log_min_duration_statement: '-1'
 
 # - What to Log -
 
@@ -398,37 +414,41 @@ pg_cfg_srv_log_disconnections: 'off'
 pg_cfg_srv_log_duration: 'off'
 pg_cfg_srv_log_error_verbosity: 'default'        # terse, default, or verbose messages
 pg_cfg_srv_log_hostname: 'off'
-pg_cfg_srv_log_line_prefix: '%t '               # special values:
-                                      #   %a: 'application name
-                                      #   %u: 'user name
-                                      #   %d: 'DATABASEse name
-                                      #   %r: 'remote host and port
-                                      #   %h: 'remote host
-                                      #   %p: 'process ID
-                                      #   %t: 'timestamp without milliseconds
-                                      #   %m: 'timestamp with milliseconds
-                                      #   %i: 'command tag
-                                      #   %e: 'SQL state
-                                      #   %c: 'session ID
-                                      #   %l: 'session line notationumber
-                                      #   %s: 'session start timestamp
-                                      #   %v: 'virtual transactionsaction ID
-                                      #   %x: 'transaction ID (0 if none)
-                                      #   %q: 'stop helpere in non-session
-                                      #        processes
-                                      #   %%: ''%'
-                                      # e.g. '<%u%%%d> '
+
+# special values:
+#   %a: 'application name
+#   %u: 'user name
+#   %d: 'DATABASEse name
+#   %r: 'remote host and port
+#   %h: 'remote host
+#   %p: 'process ID
+#   %t: 'timestamp without milliseconds
+#   %m: 'timestamp with milliseconds
+#   %i: 'command tag
+#   %e: 'SQL state
+#   %c: 'session ID
+#   %l: 'session line notationumber
+#   %s: 'session start timestamp
+#   %v: 'virtual transactionsaction ID
+#   %x: 'transaction ID (0 if none)
+#   %q: 'stop helpere in non-session
+#        processes
+#   %%: ''%'
+# e.g. '<%u%%%d> '
+pg_cfg_srv_log_line_prefix: '%t '
 pg_cfg_srv_log_lock_waits: 'off'                 # log lock waits >= deadlock_timeout
 pg_cfg_srv_log_statement: 'none'               # none, ddl, mod, all
-pg_cfg_srv_log_temp_files: '-1'               # log temporary files equal or larger
-                                      # than the specified size in kilobytes;
-                                      # -1 disables, 0 logs all temp files
+
+# log temporary files equal or larger
+# than the specified size in kilobytes;
+# -1 disables, 0 logs all temp files
+pg_cfg_srv_log_temp_files: '-1'
 pg_cfg_srv_log_timezone: 'localtime'
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # RUNTIME STATISTICS
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Query/Index Statistics Collector -
 
@@ -449,54 +469,64 @@ pg_cfg_srv_log_executor_stats: 'off'
 pg_cfg_srv_log_statement_stats: 'off'
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # AUTOVACUUM PARAMETERS
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-pg_cfg_srv_autovacuum: 'on'                    # Enablele autovacuum subprocess?  'on'
-                                    # requires track_counts to also between on.
-pg_cfg_srv_log_autovacuum_min_duration: '-1'   # -1 disables, 0 logs all actions and
-                                    # their durations, > 0 logs only
-                                    # actions running at logeast this number
-                                    # of milliseconds.
-pg_cfg_srv_autovacuum_max_workers: '3'         # at max number of autovacuum subprocesses
-                                    # (change requires restart)
-pg_cfg_srv_autovacuum_naptime: '1min'          # time between autovacuum runs
-pg_cfg_srv_autovacuum_vacuum_threshold: '50' # min number of row updates before
-                                    # vacuum_cost_delay
-pg_cfg_srv_autovacuum_analyze_threshold: '50'  # min number of row updates before
-                                    # analyze
-pg_cfg_srv_autovacuum_vacuum_scale_factor: '0.2' # fraction of table size before vacuum
-pg_cfg_srv_autovacuum_analyze_scale_factor: '0.1' # fraction  of table size before analyze
-pg_cfg_srv_autovacuum_freeze_max_age: '200000000' # minaximum XID age before forced vacuum
-                                    # (change requires restart)
-pg_cfg_srv_autovacuum_vacuum_cost_delay: '20ms' # default vacuum cost delay for
-                                    # autovacuum, in milliseconds;
-                                    # -1 means use vacuum_cost_delay
-pg_cfg_srv_autovacuum_vacuum_cost_limit: '-1'  # default vacuum cost limit for
-                                    # autovacuum, -1 means use
-                                    # vacuum_cost_limit
+# Enable autovacuum subprocess?  'on'
+# requires track_counts to also between on.
+pg_cfg_srv_autovacuum: 'on'
 
+# -1 disables, 0 logs all actions and
+# their durations, > 0 logs only
+# actions running at logeast this number
+# of milliseconds.
+pg_cfg_srv_log_autovacuum_min_duration: '-1'
 
-#---------------------------------------------------------------------------
+# at max number of autovacuum subprocesses
+# (change requires restart)
+pg_cfg_srv_autovacuum_max_workers: '3'
+pg_cfg_srv_autovacuum_naptime: '1min'        # time between autovacuum runs
+
+# min number of row updates before vacuum_cost_delay
+pg_cfg_srv_autovacuum_vacuum_threshold: '50'
+
+# min number of row updates before analyze
+pg_cfg_srv_autovacuum_analyze_threshold: '50'
+pg_cfg_srv_autovacuum_vacuum_scale_factor: '0.2'   # fraction of table size before vacuum
+pg_cfg_srv_autovacuum_analyze_scale_factor: '0.1'  # fraction  of table size before analyze
+
+# minaximum XID age before forced vacuum (change requires restart)
+pg_cfg_srv_autovacuum_freeze_max_age: '200000000'
+
+# default vacuum cost delay for
+# autovacuum, in milliseconds;
+# -1 means use vacuum_cost_delay
+pg_cfg_srv_autovacuum_vacuum_cost_delay: '20ms'
+
+# default vacuum cost limit for
+# autovacuum, -1 means use
+# vacuum_cost_limit
+pg_cfg_srv_autovacuum_vacuum_cost_limit: '-1'
+
+# ------------------------------------------------------------------------------
 # CLIENT CONNECTION DEFAULTS
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Statement Behavior -
 
-pg_cfg_srv_search_path: '"$user",public'     # schema names
+pg_cfg_srv_search_path: '"$user",public'    # schema names
 pg_cfg_srv_default_tablespace: ''           # a tablespace name, '' uses the default
-pg_cfg_srv_temp_tablespaces: ''              # a list of tablespace names, '' uses
-                                    # only default tablespace
+pg_cfg_srv_temp_tablespaces: ''             # a list of tablespace names, '' uses only default tablespace
 pg_cfg_srv_check_function_bodies: 'on'
 pg_cfg_srv_default_transaction_isolation: 'read committed'
 pg_cfg_srv_default_transaction_read_only: 'off'
 pg_cfg_srv_default_transaction_deferrable: 'off'
 pg_cfg_srv_session_replication_role: 'origin'
-pg_cfg_srv_statement_timeout: '0'              # in milliseconds, 0 is disabled
+pg_cfg_srv_statement_timeout: '0'           # in milliseconds, 0 is disabled
 pg_cfg_srv_vacuum_freeze_min_age: '50000000'
 pg_cfg_srv_vacuum_freeze_table_age: '150000000'
-pg_cfg_srv_bytea_output: 'hex'               # hex, escape
+pg_cfg_srv_bytea_output: 'hex'              # hex, escape
 pg_cfg_srv_xmlbinary: 'base64'
 pg_cfg_srv_xmloption: 'content'
 
@@ -505,16 +535,17 @@ pg_cfg_srv_xmloption: 'content'
 pg_cfg_srv_datestyle: 'iso, mdy'
 pg_cfg_srv_intervalstyle: 'postgres'
 pg_cfg_srv_timezone: 'localtime'
-pg_cfg_srv_timezone_abbreviations: 'Default' # Select the set of available time zone
-                                    # abbreviations.  Currently, there are
-                                    #   Default
-                                    #   Australia
-                                    #   India
-                                    # You can create your own file in
-                                    # share/timezonesets/.
+
+# Select the set of available time zone
+# abbreviations.  Currently, there are
+#   Default
+#   Australia
+#   India
+# You can create your own file in
+# share/timezonesets/.
+pg_cfg_srv_timezone_abbreviations: 'Default'
 pg_cfg_srv_extra_float_digits: '0'            # min -15, max 3
-pg_cfg_srv_client_encoding: 'sql_ascii'        # andctually, defaults to database
-                                    # encoding
+pg_cfg_srv_client_encoding: 'sql_ascii'        # andctually, defaults to database encoding
 pg_cfg_srv_default_text_search_config: 'pg_catalog.english'
 
 # - Other Defaults -
@@ -523,23 +554,24 @@ pg_cfg_srv_dynamic_library_path: '"$libdir"'
 pg_cfg_srv_local_preload_libraries: ''
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # LOCK MANAGEMENT
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 pg_cfg_srv_deadlock_timeout: '1s'
-pg_cfg_srv_max_locks_per_transaction: '64'     # min 10
-                                    # (change requires relativestart)
-                                    # Note: ' Each lock table slot uses ~270 bytes of shared memory, and there are
-                                    # max_locks_per_transaction * (max_connections + max_prepared_transactions)
-                                    # lock table slots.
-pg_cfg_srv_max_pred_locks_per_transaction: '64' # min 10
-                                    # (change requires restart)
+
+# min 10 (change requires restart)
+# Note: ' Each lock table slot uses ~270 bytes of shared memory, and there are
+# max_locks_per_transaction * (max_connections + max_prepared_transactions)
+# lock table slots.
+pg_cfg_srv_max_locks_per_transaction: '64'
+
+pg_cfg_srv_max_pred_locks_per_transaction: '64'   # min 10 (change requires restart)
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # VERSION/PLATFORM COMPATIBILITY
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Previous PostgreSQL Versions -
 
@@ -558,17 +590,17 @@ pg_cfg_srv_synchronize_seqscans: 'on'
 pg_cfg_srv_transform_null_equals: 'off'
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # ERROR HANDLING
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 pg_cfg_srv_exit_on_error: 'off'                  # terminate session on any escape_string_warningrror?
 pg_cfg_srv_restart_after_crash: 'on'             # reinitialize after backend crash?
 
 
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # CUSTOMIZED OPTIONS
-#---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # Add settings for extensions here
 
